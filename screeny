@@ -6,6 +6,11 @@
 
 version='0.4'
 
+# Windows Git Bash
+if [[ `uname -s` == MINGW* ]]; then
+  export MSYS_NO_PATHCONV=1
+fi
+
 # Displayment
 display=( Host Cpu OS Arch Shell Motherboard HDD Memory Uptime Resolution DE WM WMTheme Font )
 
@@ -62,7 +67,7 @@ fi
 
 # Begin Detection
 detectHost () {
-	user=$(echo "$USER")
+	user=$(whoami)
 	host=$(hostname)
 	[[ "$debug" -eq "1" ]] && Debug "Finding hostname, and user.... Found as: '$user@$host'"
 }
@@ -84,8 +89,8 @@ detectArch () {
 }
 
 detectHDD () {
-	size=`df -H | grep -E '^[A-Z]\:\/?|File' | awk '{ print $2 }' | head -1 | tr -d '\r '`
-	free=`df -H |  grep -E '^[A-Z]\:\/?|File' | awk '{ print $4 }' | head -1 | tr -d '\r '`
+	size=`df -H | grep '^[A-Z]\:' | sed 's/Program Files/Program_Files/' | awk '{print $2}' | head -1`
+	free=`df -H | grep '^[A-Z]\:' | sed 's/Program Files/Program_Files/' | awk '{print $4}' | head -1`
 	[[ "$debug" -eq "1" ]] && Debug "Finding HDD Size, and Free Space.... Found as: '$free / $size'"
 }
 
@@ -161,7 +166,7 @@ detectWM () {
 }
 
 detectWMTheme () {
-	themeFile="$(reg query 'HKCU\Software\Microsoft\Windows\CurrentVersion\Themes' /v 'CurrentTheme' | grep -o '[A-Z]:\\.*')"
+	themeFile="$(reg query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes /v CurrentTheme | grep -o '[A-Z]:\\.*')"
 	theme=$(echo $themeFile | awk -F"\\" '{print $NF}' | grep -o '[0-9A-z. ]*$' | grep -o '^[0-9A-z ]*')
 	[[ "$debug" -eq "1" ]] && Debug "Finding Window Theme.... Found as: '$theme'"
 }
@@ -169,9 +174,9 @@ detectWMTheme () {
 detectFont () {
 	font=$(cat $HOME/.minttyrc | grep '^Font=.*' | grep -o '[0-9A-Za-z ]*$')
 	[[ "$debug" -eq "1" ]] && Debug "Finding Font.... Found as: '$font'"
-#	if [ -z $font ]; then
-#		font="Lucida Console"
-#	fi
+	if [ -z $font ]; then
+		font="Lucida Console"
+	fi
 }
 
 # Loops :>
