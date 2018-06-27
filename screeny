@@ -172,7 +172,7 @@ detectWMTheme () {
 }
 
 detectFont () {
-	font=$(cat $HOME/.minttyrc | grep '^Font=.*' | grep -o '[0-9A-Za-z ]*$')
+	font=$(cat "$HOME/.minttyrc" | grep '^Font=.*' | grep -o '[0-9A-Za-z ]*$')
 	[[ "$debug" -eq "1" ]] && Debug "Finding Font.... Found as: '$font'"
 	if [ -z $font ]; then
 		font="Lucida Console"
